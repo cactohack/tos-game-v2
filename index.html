@@ -91,6 +91,17 @@ header { background: linear-gradient(135deg, var(--bg-panel) 0%, #1a1a25 100%); 
 /* DYNAMIC TEXT AFTER */
 .toggle-box.doors[data-state="1"]::after { content: "SLAMS"; }
 .toggle-box.doors[data-state="2"]::after { content: "NEVER"; }
+
+
+/* CANDLE STATES */
+.toggle-box.candle[data-state="0"] { background: rgba(234, 179, 8, 0.15); border-color: var(--yellow); color: var(--yellow); }
+.toggle-box.candle[data-state="1"] { background: rgba(239, 68, 68, 0.15); border-color: var(--red); color: var(--red); }
+.toggle-box.candle[data-state="2"] { background: rgba(168, 85, 247, 0.15); border-color: var(--purple); color: var(--purple); }
+  
+  
+  
+  
+  .toggle-box.candle[data-state="0"]::after { content: "IGNORE"; }
 .toggle-box.candle[data-state="1"]::after { content: "OFF"; }
 .toggle-box.candle[data-state="2"]::after { content: "IGNORE"; }
 .toggle-box.holy[data-state="1"]::after { content: "3S"; }
@@ -99,6 +110,13 @@ header { background: linear-gradient(135deg, var(--bg-panel) 0%, #1a1a25 100%); 
 .toggle-box.manifest[data-state="2"]::after { content: "SHADOW"; }
 .toggle-box.flx[data-state="1"]::after { content: "INTERACT"; }
 .toggle-box.flx[data-state="2"]::after { content: "IGNORE"; }
+  /* RADIO TEXT AFTER */
+.toggle-box.radio[data-state="0"]::after { content: "IGNORE"; }
+.toggle-box.radio[data-state="1"]::after { content: "ON"; }
+.toggle-box.radio[data-state="2"]::after { content: "OFF"; }
+.toggle-box.radio[data-state="3"]::after { content: "BOTH"; }
+.toggle-box.radio[data-state="4"]::after { content: "IGNORE"; }
+
 
 /* === TIMER === */
 .timer-container { background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 8px; padding: 12px; margin-top: 12px; }
