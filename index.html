@@ -84,7 +84,11 @@ header { background: linear-gradient(135deg, var(--bg-panel) 0%, #1a1a25 100%); 
 .toggle-box.radio[data-state="1"] { background: rgba(234, 179, 8, 0.15); border-color: var(--yellow); color: var(--yellow); }
 .toggle-box.radio[data-state="2"] { background: rgba(239, 68, 68, 0.15); border-color: var(--red); color: var(--red); }
 .toggle-box.radio[data-state="3"] { background: rgba(34, 197, 94, 0.15); border-color: var(--success); color: var(--success); }
-.toggle-box.radio[data-state="4"] { background: rgba(168, 85, 247, 0.15); border-color: var(--purple); color: var(--purple); }
+    .toggle-box.lights[data-state="1"]::after { content: "ON"; }
+    .toggle-box.lights[data-state="2"]::after { content: "OFF"; }
+    .toggle-box.lights[data-state="3"]::after { content: "BOTH"; }
+    .toggle-box.lights[data-state="4"]::after { content: "IGNORE"; }
+  .toggle-box.radio[data-state="4"] { background: rgba(168, 85, 247, 0.15); border-color: var(--purple); color: var(--purple); }
 /* ACTION STATES */
 .toggle-box.action[data-state="1"] { background: rgba(239, 68, 68, 0.15); border-color: var(--red); color: var(--red); }
 .toggle-box.action[data-state="2"] { background: rgba(34, 197, 94, 0.15); border-color: var(--success); color: var(--success); }
@@ -94,17 +98,18 @@ header { background: linear-gradient(135deg, var(--bg-panel) 0%, #1a1a25 100%); 
 
 
 /* CANDLE STATES */
-.toggle-box.candle[data-state="0"] { background: rgba(234, 179, 8, 0.15); border-color: var(--yellow); color: var(--yellow); }
-.toggle-box.candle[data-state="1"] { background: rgba(239, 68, 68, 0.15); border-color: var(--red); color: var(--red); }
-.toggle-box.candle[data-state="2"] { background: rgba(168, 85, 247, 0.15); border-color: var(--purple); color: var(--purple); }
+    .toggle-box.candle[data-state="0"] { }
+    .toggle-box.candle[data-state="1"] { background: rgba(234, 179, 8, 0.15); border-color: var(--yellow); color: var(--yellow); }
+    .toggle-box.candle[data-state="2"] { background: rgba(239, 68, 68, 0.15); border-color: var(--red); color: var(--red); }
+      .toggle-box.candle[data-state="3"] { background: rgba(168, 85, 247, 0.15); border-color: var(--purple); color: var(--purple); }
   
   
   
-  
-  .toggle-box.candle[data-state="0"]::after { content: "IGNORE"; }
-.toggle-box.candle[data-state="1"]::after { content: "OFF"; }
-.toggle-box.candle[data-state="2"]::after { content: "IGNORE"; }
-.toggle-box.holy[data-state="1"]::after { content: "3S"; }
+      .toggle-box.candle[data-state="0"]::after { content: ""; }
+    .toggle-box.candle[data-state="1"]::after { content: "ON"; }
+    .toggle-box.candle[data-state="2"]::after { content: "OFF"; }
+    .toggle-box.candle[data-state="3"]::after { content: "IGNORE"; }
+  .toggle-box.holy[data-state="1"]::after { content: "3S"; }
 .toggle-box.holy[data-state="2"]::after { content: "5S"; }
 .toggle-box.manifest[data-state="1"]::after { content: "FULL"; }
 .toggle-box.manifest[data-state="2"]::after { content: "SHADOW"; }
@@ -474,7 +479,7 @@ filterGhosts();
 
 function cycleBinary(btn, type) {
 if(type === 'doors') { doorState = (doorState + 1) % 3; btn.dataset.state = doorState; }
-else if(type === 'candle') { candleState = (candleState + 1) % 3; btn.dataset.state = candleState; }
+else if(type === 'candle') { candleState = (candleState + 1) % 34; btn.d4ataset.state = candleState; }
 else if(type === 'holy') { holyState = (holyState + 1) % 3; btn.dataset.state = holyState; }
 else if(type === 'flx') { flxState = (flxState + 1) % 3; btn.dataset.state = flxState; }
 else if(type === 'breaker') { breakerState = (breakerState + 1) % 3; btn.dataset.state = breakerState; }
