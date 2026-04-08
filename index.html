@@ -1,731 +1,564 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>The Other Side - Ghost Tracker</title>
-    <style>
-        /* CORE VARIABLES */
-        :root {
-            --bg-dark: #121212; --bg-panel: #1e1e1e; --bg-card: #252525;
-            --text-main: #e0e0e0; --text-dim: #a0a0a0; --accent: #bb86fc;
-            --border: #333; --select-green: #00e676; --danger-red: #ff4444; 
-            --warning-orange: #ff9800;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>The Other Side - Ghost Tracker v2</title>
+<style>
+/* === CORE VARIABLES === */
+:root {
+--bg-dark: #0d0d0d;
+--bg-panel: #151515;
+--bg-card: #1a1a1a;
+--bg-card-hover: #202020;
+--text-main: #f0f0f0;
+--text-dim: #909090;
+--text-muted: #666;
+--accent: #a855f7;
+--accent-2: #c084fc;
+--border: #2a2a2a;
+--border-strong: #3a3a3a;
+--success: #22c55e;
+--warning: #f59e0b;
+--danger: #ef4444;
+--purple: #a855f7;
+--cyan: #06b6d4;
+--red: #ef4444;
+--green: #22c55e;
+--blue: #3b82f6;
+--yellow: #eab308;
+}
 
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent;}
-        
-        body { background-color: var(--bg-dark); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; touch-action: manipulation; }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
 
-        header { 
-            background: var(--bg-panel); padding: 15px 20px; border-bottom: 1px solid var(--border); 
-            display: flex; flex-direction: column; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            flex-shrink: 0; z-index: 10;
-        }
-        h1 { font-size: 1.5rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+body { background-color: var(--bg-dark); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; touch-action: manipulation; }
 
-        .main-content { display: flex; flex: 1; overflow: hidden; }
+/* === HEADER === */
+header { background: linear-gradient(135deg, var(--bg-panel) 0%, #1a1a25 100%); padding: 12px 24px; border-bottom: 1px solid var(--border-strong); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.header-title { display: flex; align-items: center; gap: 12px; }
+.header-title h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.header-actions { display: flex; gap: 8px; }
+.theme-toggle, .hunt-mode-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-dim); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
+.theme-toggle:hover, .hunt-mode-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-        /* SIDEBAR */
-        .sidebar { width: 340px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
-        .sidebar-scroll { padding: 20px; overflow-y: auto; flex: 1; }
-        .sidebar-section { margin-bottom: 30px; }
-        .sidebar-section h3 { font-size: 0.85rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 12px; padding-bottom: 5px; border-bottom: 1px solid var(--border);
-        }
- 
-        /* CONTENT (GHOST CARDS) */
-        .content-area { flex: 1; padding: 20px; overflow-y: auto; background: #121212; display: flex; flex-direction: column; }
-        .ghost-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; padding-bottom: 40px; }
-        .instruction-bar { 
-            background: #252525; border: 1px solid #333; padding: 10px; margin-bottom: 20px; 
-            text-align: center; color: #aaa; font-size: 0.85rem; border-radius: 4px; font-weight: 600;
-        }
-        .instruction-bar span { color: var(--accent); }
+/* === LAYOUT === */
+.main-content { display: flex; flex: 1; overflow: hidden; }
 
-        /* CONTROLS */
+/* === SIDEBAR === */
+.sidebar { width: 360px; background: var(--bg-panel); border-right: 1px solid var(--border-strong); display: flex; flex-direction: column; flex-shrink: 0; }
+.sidebar-scroll { padding: 16px; overflow-y: auto; flex: 1; }
+.sidebar-section { margin-bottom: 24px; }
+.sidebar-section h3 { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; letter-spacing: 0.5px; }
 
-        /* RESET BUTTON */
-        .reset-all-btn {
-            width: 100%; padding: 12px; margin-bottom: 20px; background: #2c2c2c; border: 1px solid var(--border); color: #fa2a2a;
-            font-weight: bold; cursor: pointer; border-radius: 6px; transition: 0.2s; text-transform: uppercase; font-size: 0.9rem; min-height: 44px;
-        }
-        .reset-all-btn:hover { background: #3a1a1a; border-color: #ff4444; }
+/* === RESET BUTTON === */
+.reset-all-btn { width: 100%; padding: 10px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--danger); font-weight: 600; cursor: pointer; border-radius: 6px; transition: all 0.2s; }
+.reset-all-btn:hover { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); }
 
-        /* TOGGLE BOXES */
-        .toggle-box {
-            width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 6px; background: #2c2c2c; border: 1px solid var(--border); 
-            color: var(--text-dim); cursor: pointer; text-align: left; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; user-select: none; position: relative;
-        }
-        .toggle-box:hover { background: #333; border-color: #555; }
-        .toggle-box:active { transform: translateY(1px); }
-        
-        /* Remove "ANY" text */
-        .toggle-box[data-state="0"]::after { content: ""; position: absolute; right: 12px; font-size: 0.7rem; opacity: 0.5; }
-        
-        /* DYNAMIC STATES */
-        .toggle-box.breaker[data-state="1"] { background: rgba(78, 205, 196, 0.15); border-color: #4ecdc4; color: #4ecdc4; }
-        .toggle-box.breaker[data-state="1"]::after { content: "CAN USE"; opacity: 1; }
-        .toggle-box.breaker[data-state="2"] { background: rgba(255, 68, 68, 0.15); border-color: #ff4444; color: #ff8888; }
-        .toggle-box.breaker[data-state="2"]::after { content: "CANNOT USE"; opacity: 1; }
+/* === EVIDENCE GRID === */
+.evidence-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.ev-btn { padding: 10px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-dim); border-radius: 6px; cursor: pointer; text-align: center; font-size: 0.8rem; transition: all 0.2s; font-weight: 600; }
+.ev-btn:hover { background: var(--bg-card-hover); border-color: var(--border-strong); }
+.ev-btn[data-ev="EMF 20+"].active { background: rgba(239, 68, 68, 0.15); border-color: var(--red); color: var(--red); box-shadow: 0 0 12px rgba(239, 68, 68, 0.2); }
+.ev-btn[data-ev="Audio"].active { background: rgba(6, 182, 212, 0.15); border-color: var(--cyan); color: var(--cyan); box-shadow: 0 0 12px rgba(6, 182, 212, 0.2); }
+.ev-btn[data-ev="UV"].active { background: rgba(168, 85, 247, 0.15); border-color: var(--purple); color: var(--purple); box-shadow: 0 0 12px rgba(168, 85, 247, 0.2); }
+.ev-btn[data-ev="Writing"].active { background: rgba(34, 197, 94, 0.15); border-color: var(--success); color: var(--success); box-shadow: 0 0 12px rgba(34, 197, 94, 0.2); }
+.ev-btn[data-ev="Freezing"].active { background: rgba(59, 130, 246, 0.15); border-color: var(--blue); color: var(--blue); box-shadow: 0 0 12px rgba(59, 130, 246, 0.2); }
+.ev-btn[data-ev="Radiation"].active { background: rgba(234, 179, 8, 0.15); border-color: var(--yellow); color: var(--yellow); box-shadow: 0 0 12px rgba(234, 179, 8, 0.2); }
+.ev-btn.excluded { background: rgba(40, 40, 40, 0.5); border-color: #333; color: #444; text-decoration: line-through; opacity: 0.5; }
 
-         /* --- LIGHTS STATES --- */
-        .toggle-box.lights[data-state="1"] { background: rgba(255, 215, 0, 0.15); border-color: #ffd700; color: #ffd700; }
-        .toggle-box.lights[data-state="1"]::after { content: "TURNS ON"; opacity: 1; }
-        .toggle-box.lights[data-state="2"] { background: rgba(255, 68, 68, 0.15); border-color: #ff4444; color: #ff4444; }
-        .toggle-box.lights[data-state="2"]::after { content: "TURNS OFF/BREAKS"; color: #ff4444; opacity: 1; }
-        .toggle-box.lights[data-state="3"] { background: rgba(50, 205, 50, 0.15); border-color: #32cd32; color: #32cd32; }
-        .toggle-box.lights[data-state="3"]::after { content: "BOTH"; opacity: 1; }
-        .toggle-box.lights[data-state="4"] { background: rgba(163, 154, 230, 0.15); border-color: #a39ae6; color: #a39ae6; }
-        .toggle-box.lights[data-state="4"]::after { content: "IGNORES"; opacity: 1; } /* Guu addition */
+/* === TOGGLE BOXES === */
+.toggle-box { width: 100%; padding: 10px; margin-bottom: 6px; border-radius: 6px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; text-align: left; font-size: 0.8rem; font-weight: 600; transition: all 0.2s; position: relative; display: flex; justify-content: space-between; align-items: center; }
+.toggle-box:hover { background: var(--bg-card-hover); border-color: var(--border-strong); }
+.toggle-box:active { transform: translateY(1px); }
+.toggle-box span { flex: 1; }
+.toggle-box::after { content: attr(data-state-text); font-size: 0.7rem; color: var(--text-muted); }
+/* BREAKER STATES */
+.toggle-box.breaker[data-state="1"] { background: rgba(6, 182, 212, 0.15); border-color: var(--cyan); color: var(--cyan); }
+.toggle-box.breaker[data-state="2"] { background: rgba(239, 68, 68, 0.15); border-color: var(--red); color: var(--red); }
+/* LIGHTS STATES */
+.toggle-box.lights[data-state="1"] { background: rgba(234, 179, 8, 0.15); border-color: var(--yellow); color: var(--yellow); }
+.toggle-box.lights[data-state="2"] { background: rgba(239, 68, 68, 0.15); border-color: var(--red); color: var(--red); }
+.toggle-box.lights[data-state="3"] { background: rgba(34, 197, 94, 0.15); border-color: var(--success); color: var(--success); }
+.toggle-box.lights[data-state="4"] { background: rgba(168, 85, 247, 0.15); border-color: var(--purple); color: var(--purple); }
+/* RADIO STATES */
+.toggle-box.radio[data-state="1"] { background: rgba(234, 179, 8, 0.15); border-color: var(--yellow); color: var(--yellow); }
+.toggle-box.radio[data-state="2"] { background: rgba(239, 68, 68, 0.15); border-color: var(--red); color: var(--red); }
+.toggle-box.radio[data-state="3"] { background: rgba(34, 197, 94, 0.15); border-color: var(--success); color: var(--success); }
+.toggle-box.radio[data-state="4"] { background: rgba(168, 85, 247, 0.15); border-color: var(--purple); color: var(--purple); }
+/* ACTION STATES */
+.toggle-box.action[data-state="1"] { background: rgba(239, 68, 68, 0.15); border-color: var(--red); color: var(--red); }
+.toggle-box.action[data-state="2"] { background: rgba(34, 197, 94, 0.15); border-color: var(--success); color: var(--success); }
+/* DYNAMIC TEXT AFTER */
+.toggle-box.doors[data-state="1"]::after { content: "SLAMS"; }
+.toggle-box.doors[data-state="2"]::after { content: "NEVER"; }
+.toggle-box.candle[data-state="1"]::after { content: "OFF"; }
+.toggle-box.candle[data-state="2"]::after { content: "IGNORE"; }
+.toggle-box.holy[data-state="1"]::after { content: "3S"; }
+.toggle-box.holy[data-state="2"]::after { content: "5S"; }
+.toggle-box.manifest[data-state="1"]::after { content: "FULL"; }
+.toggle-box.manifest[data-state="2"]::after { content: "SHADOW"; }
+.toggle-box.flx[data-state="1"]::after { content: "INTERACT"; }
+.toggle-box.flx[data-state="2"]::after { content: "IGNORE"; }
 
-        /* --- RADIO STATES --- */
-        .toggle-box.radio[data-state="1"] { background: rgba(255, 215, 0, 0.15); border-color: #ffd700; color: #ffd700; }
-        .toggle-box.radio[data-state="1"]::after { content: "TURNS ON"; opacity: 1; }
+/* === TIMER === */
+.timer-container { background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 8px; padding: 12px; margin-top: 12px; }
+.timer-display { font-family: 'JetBrains Mono', 'Consolas', monospace; font-size: 1.75rem; color: var(--accent-2); text-align: center; background: #000; padding: 10px; border-radius: 6px; border: 1px solid #222; letter-spacing: 2px; }
+.timer-controls { display: flex; gap: 6px; margin-top: 8px; }
+.timer-btn { flex: 1; padding: 8px; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; font-weight: 600; text-transform: uppercase; font-size: 0.7rem; transition: all 0.2s; }
+.btn-start { background: rgba(34, 197, 94, 0.15); color: var(--success); border-color: rgba(34, 197, 94, 0.3); }
+.btn-start:hover { background: rgba(34, 197, 94, 0.25); }
+.btn-stop { background: rgba(239, 68, 68, 0.15); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); display: none; }
+.btn-stop:hover { background: rgba(239, 68, 68, 0.25); }
+.btn-reset { background: var(--bg-card-hover); color: var(--text-dim); }
+.btn-reset:hover { background: var(--border-strong); color: var(--text-main); }
 
-        .toggle-box.radio[data-state="2"] { background: rgba(255, 68, 68, 0.15); border-color: #ff4444; color: #ff4444; }
-        .toggle-box.radio[data-state="2"]::after { content: "TURNS OFF"; color: #ff4444; opacity: 1; }
+/* === SELECT DROPS === */
+.select-drop { width: 100%; padding: 8px 10px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border); border-radius: 6px; font-size: 0.8rem; margin-bottom: 6px; cursor: pointer; }
+.select-drop:hover { border-color: var(--border-strong); }
 
-        .toggle-box.radio[data-state="3"] { background: rgba(50, 205, 50, 0.15); border-color: #32cd32; color: #32cd32; }
-        .toggle-box.radio[data-state="3"]::after { content: "BOTH"; opacity: 1; }
+/* === CONTENT AREA === */
+.content-area { flex: 1; padding: 0; overflow-y: auto; background: var(--bg-dark); display: flex; flex-direction: column; }
+.content-scroll { padding: 20px; overflow-y: auto; flex: 1; }
+.ghost-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
 
-        .toggle-box.radio[data-state="4"] { background: rgba(163, 154, 230, 0.15); border-color: #a39ae6; color: #a39ae6; }
-        .toggle-box.radio[data-state="4"]::after { content: "IGNORES"; opacity: 1; } /* Guu addition */
+.ghost-card { background: var(--bg-card); border-radius: 10px; padding: 16px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 10px; cursor: pointer; transition: all 0.2s; position: relative; }
+.ghost-card:hover { border-color: var(--accent); background: var(--bg-card-hover); transform: translateY(-2px); }
+.ghost-card.eliminated { opacity: 0.3; border-color: var(--danger); background: #151515; }
+.ghost-card.eliminated:hover { transform: none; }
+.ghost-card.eliminated::before { content: "✕"; position: absolute; top: 10px; right: 14px; color: var(--danger); font-weight: bold; font-size: 1.2rem; z-index: 2; }
+.ghost-header { display: flex; align-items: baseline; gap: 8px; }
+.ghost-name { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
+.ghost-lore { font-size: 0.75rem; color: var(--text-muted); font-style: italic; line-height: 1.3; }
+.ghost-behavior { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; border-top: 1px dashed var(--border); padding-top: 10px; }
+.behavior-point { display: block; margin-bottom: 5px; position: relative; padding-left: 12px; }
+.behavior-point::before { content: "▸"; position: absolute; left: 0; color: var(--accent); font-size: 0.7rem; }
+.evidence-chips { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px; }
+.evidence-chip { font-size: 0.65rem; padding: 3px 8px; border-radius: 10px; background: var(--bg-card-hover); color: var(--text-dim); border: 1px solid var(--border); font-weight: 600; }
+.evidence-chip.match[data-ev="EMF 20+"] { border-color: var(--red); color: var(--red); background: rgba(239, 68, 68, 0.1); }
+.evidence-chip.match[data-ev="Audio"] { border-color: var(--cyan); color: var(--cyan); background: rgba(6, 182, 212, 0.1); }
+.evidence-chip.match[data-ev="UV"] { border-color: var(--purple); color: var(--purple); background: rgba(168, 85, 247, 0.1); }
+.evidence-chip.match[data-ev="Writing"] { border-color: var(--success); color: var(--success); background: rgba(34, 197, 94, 0.1); }
+.evidence-chip.match[data-ev="Freezing"] { border-color: var(--blue); color: var(--blue); background: rgba(59, 130, 246, 0.1); }
+.evidence-chip.match[data-ev="Radiation"] { border-color: var(--yellow); color: var(--yellow); background: rgba(234, 179, 8, 0.1); }
+.stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); }
+.stat { font-size: 0.7rem; color: var(--text-dim); }
+.stat-label { opacity: 0.7; display: block; margin-bottom: 2px; }
+.stat-val { font-weight: 700; font-size: 0.75rem; }
 
-        /* --- DOORS / FLX / MANIFEST / HUNT STATES / CANDLE STATES / HOLY STATES --- */
-        .toggle-box.action[data-state="1"] { background: rgba(255, 68, 68, 0.15); border-color: #ff4444; color: #ff4444; }
-        .toggle-box.action[data-state="2"] { background: rgba(50, 205, 50, 0.15); border-color: #32cd32; color: #32cd32; }
+/* === STICKY COUNTER === */
+.ghost-count { font-size: 0.7rem; color: var(--text-muted); text-align: center; padding: 8px; background: var(--bg-panel); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 5; }
+.ghost-count span { color: var(--accent-2); font-weight: 700; }
 
-        .toggle-box.doors[data-state="1"]::after { content: "SLAMS"; opacity: 1; }
-        .toggle-box.doors[data-state="2"]::after { content: "NEVER SLAMS"; opacity: 1; }
+/* === SCROLLBAR === */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #444; }
 
-        .toggle-box.flx[data-state="1"]::after { content: "TURNS OFF"; opacity: 1; }
-        .toggle-box.flx[data-state="2"]::after { content: "IGNORES"; opacity: 1; }
-        
-        .toggle-box.candle[data-state="1"]::after { content: "BLOWS OUT"; opacity: 1; }
-        .toggle-box.candle[data-state="2"]::after { content: "IGNORES"; opacity: 1; }
+/* === STICKY BAR === */
+.sticky-bar { position: sticky; top: 0; background: var(--bg-panel); z-index: 50; padding: 12px 20px; border-bottom: 1px solid var(--border-strong); display: none; }
+.sticky-bar.active { display: flex; gap: 16px; align-items: center; }
 
-        .toggle-box.holy[data-state="1"]::after { content: "3 Seconds"; opacity: 1; }
-        .toggle-box.holy[data-state="2"]::after { content: "5 Seconds"; opacity: 1; }
+/* === MOBILE RESPONSIVE === */
+@media screen and (max-width: 768px) {
+body { height: auto; overflow-y: auto; }
+.main-content { flex-direction: column; }
+.sidebar { width: 100%; height: auto; order: -1; border-right: none; border-bottom: 2px solid var(--border-strong); }
+.sidebar-scroll { padding: 12px; overflow: visible; }
+.content-scroll { padding: 12px; overflow: visible; }
+.ghost-grid { grid-template-columns: 1fr; gap: 12px; }
+.evidence-grid { gap: 4px; }
+.ev-btn { padding: 12px 8px; font-size: 0.85rem; }
+.sidebar-section { margin-bottom: 16px; }
+.toggle-box { padding: 12px; font-size: 0.85rem; }
+header { padding: 10px 16px; flex-direction: column; gap: 8px; text-align: center; }
+.header-title { flex-direction: column; gap: 4px; }
+.header-actions { flex-wrap: wrap; justify-content: center; }
+.ghost-count { position: relative; }
+.sticky-bar.active { display: none; }
+}
 
-       /* MANIFEST TOGGLE */
-        .toggle-box.manifest[data-state="1"]::after { content: "FULL BODY"; opacity: 1; }
-        .toggle-box.manifest[data-state="2"]::after { content: "SHADOW ONLY"; opacity: 1; }
+/* === NO EVIDENCE FILTER === */
+.no-ev-btn { width: 100%; margin-top: 8px; padding: 8px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-dim); border-radius: 6px; cursor: pointer; font-size: 0.75rem; transition: all 0.2s; }
+.no-ev-btn:hover { border-color: var(--accent); color: var(--accent); }
+.no-ev-btn.active { background: rgba(168, 85, 247, 0.15); border-color: var(--purple); color: var(--purple); }
 
-       /* TIMER STYLES */
-        .timer-container {
-            background: #151515; border: 1px solid #333; border-radius: 6px; padding: 15px;
-            display: flex; flex-direction: column; gap: 10px; margin-top: 15px;
-        }
-        .timer-display {
-            font-family: 'Consolas', 'Monaco', monospace; font-size: 2rem; color: var(--accent);
-            text-align: center; background: #000; padding: 10px; border-radius: 4px; border: 1px solid #222;
-            letter-spacing: 2px;
-        }
-        .timer-controls { display: flex; gap: 8px; }
-        .timer-btn {
-            flex: 1; padding: 10px; border-radius: 4px; border: 1px solid #333; cursor: pointer;
-            font-weight: bold; text-transform: uppercase; font-size: 0.8rem; transition: 0.2s;
-        }
-        .btn-start { background: #1a3a2a; color: var(--select-green); border-color: #2a5a3a; }
-        .btn-start:hover { background: #2a5a3a; }
-        .btn-stop { background: #3a1a1a; color: var(--danger-red); border-color: #5a2a2a; display: none; }
-        .btn-stop:hover { background: #5a2a2a; }
-        .btn-reset { background: #2c2c2c; color: var(--text-dim); }
-        .btn-reset:hover { background: #333; color: white; }
+/* === HUNT MODE === */
+.hunt-mode-active .ghost-card:not(.candidate) { display: none; }
+.hunt-mode-active .ghost-card.candidate { border-color: var(--success); box-shadow: 0 0 20px rgba(34, 197, 94, 0.3); }
 
-        /* EVIDENCE & COLORS */
-        .evidence-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .ev-btn {
-            padding: 12px; background: #2c2c2c; border: 1px solid #333; color: #aaa;
-            border-radius: 4px; cursor: pointer; text-align: center; font-size: 0.85rem;
-            transition: 0.2s; user-select: none; font-weight: 600; min-height: 44px; display: flex; align-items: center; justify-content: center;
+/* === EMPTY STATE === */
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+.empty-state h4 { font-size: 1rem; color: var(--text-dim); margin-bottom: 8px; }
+.empty-state p { font-size: 0.85rem; }
 
-        }
-        .ev-btn:hover { background: #333; }
+/* === INSTRUCTION BAR === */
+.instruction-bar { background: var(--bg-card); border: 1px solid var(--border); padding: 10px; margin-bottom: 16px; text-align: center; color: var(--text-dim); font-size: 0.8rem; border-radius: 6px; }
+.instruction-bar span { color: var(--accent-2); font-weight: 600; }
 
-        /* Active Sidebar Colors - Actual button colors */
-        .ev-btn[data-ev="EMF 20+"].active { background: rgba(255, 68, 68, 0.2); border-color: #ff4444; color: #ff4444; } 
-        .ev-btn[data-ev="Audio"].active { background: rgba(0, 250, 229, 0.2); border-color: #00fae5; color: #00fae5; } 
-        .ev-btn[data-ev="UV"].active { background: rgba(188, 19, 254, 0.2); border-color: #bc13fe; color: #bc13fe; } 
-        .ev-btn[data-ev="Writing"].active { background: rgba(50, 205, 50, 0.2); border-color: #32cd32; color: #32cd32; } 
-        .ev-btn[data-ev="Freezing"].active { background: rgba(68, 170, 255, 0.2); border-color: #44aaff; color: #44aaff; } 
-        .ev-btn[data-ev="Radiation"].active { background: rgba(237, 176, 7, 0.2); border-color: #edb007; color: #edb007; } 
-        .ev-btn.excluded { background: rgba(40, 40, 40, 0.5) !important; border-color: #444 !important; color: #555 !important; text-decoration: line-through; opacity: 0.4; }
+/* === BADGE === */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; }
+.badge-fast { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+.badge-variable { background: rgba(168, 85, 247, 0.2); color: var(--purple); }
 
-        /* GHOST CARD */
-        .ghost-card {
-            background: var(--bg-card); border-radius: 8px; padding: 15px;
-            border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            display: flex; flex-direction: column; gap: 10px; cursor: pointer;
-            transition: opacity 0.2s; position: relative;
-        }
-        .ghost-card:hover { border-color: var(--accent); }
-        
-        .ghost-card.eliminated { opacity: 0.4; border-color: #ff4444; background: #1a1a1a; }
-        .ghost-card.eliminated::before {
-            content: "X"; position: absolute; top: 10px; right: 15px;
-            color: #ff4444; font-weight: bold; font-size: 1.5rem; z-index: 2;
-        }
-
-        .ghost-name { font-size: 1.2rem; font-weight: bold; color: white; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-        .ghost-lore { font-size: 0.8rem; color: #888; font-style: italic; line-height: 1.3; margin-bottom: 5px; }
-        .ghost-behavior { font-size: 0.85rem; color: #ddd; line-height: 1.4; border-top: 1px dashed #333; padding-top: 8px; }
-        
-        .behavior-point { display: block; margin-bottom: 4px; position: relative; padding-left: 12px; }
-        .behavior-point::before { content: "•"; position: absolute; left: 0; color: var(--accent); }
-
-        .evidence-items { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
-        
-        .evidence-tag { 
-            font-size: 0.7rem; padding: 3px 8px; border-radius: 4px; 
-            background: #333; color: #ddd; border: 1px solid #444; 
-        }
-
-        /* MATCHED TAG STYLES Colors for Evidence Tags in Ghost Description */
-        .evidence-tag.match[data-ev="EMF 20+"] { border-color: #ff4444; color: #ff4444; background: rgba(255, 68, 68, 0.2); }
-        .evidence-tag.match[data-ev="Audio"] { border-color: #00fae5; color: #00fae5; background: rgba(0, 250, 229, 0.2); }
-        .evidence-tag.match[data-ev="UV"] { border-color: #bc13fe; color: #bc13fe; background: rgba(188, 19, 254, 0.2); }
-        .evidence-tag.match[data-ev="Writing"] { border-color: #32cd32; color: #32cd32; background: rgba(50, 205, 50, 0.2); }
-        .evidence-tag.match[data-ev="Freezing"] { border-color: #44aaff; color: #44aaff; background: rgba(68, 170, 255, 0.2); }
-        .evidence-tag.match[data-ev="Radiation"] { border-color: #edb007; color: #edb007; background: rgba(237, 176, 7, 0.2); }
-
-        .stats-container { margin-top: auto; padding-top: 10px; border-top: 1px dashed #444; }
-        .stat-item { margin-bottom: 8px; font-size: 0.75rem; color: #ccc; display: flex; justify-content: space-between; }
-        .stat-val { font-weight: bold; }
-
-        /* SCROLLBAR */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-dark); }
-        ::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
-
-        /* === MOBILE RESPONSIVE CSS === */
-        @media screen and (max-width: 768px) {
-            body {
-                height: auto;
-                overflow-y: auto; /* Enable page scroll */
-            }
-            .main-content {
-                flex-direction: column; /* Stack elements vertically */
-            }
-            .sidebar {
-                width: 100%;
-                height: auto;
-                order: -1; /* Move Sidebar to TOP */
-                border-left: none;
-                border-bottom: 2px solid var(--border);
-                padding-bottom: 20px;
-            }
-            .sidebar-scroll {
-                padding: 15px;
-                overflow: visible;
-            }
-            .content-area {
-                padding: 15px;
-                overflow: visible;
-            }
-            .ghost-grid {
-                grid-template-columns: 1fr; /* One column for phones */
-            }
-            
-            /* Tweak evidence grid for mobile fingers */
-            .evidence-grid {
-                gap: 5px;
-            }
-            .ev-btn {
-                padding: 15px 5px; /* Taller touch target */
-                font-size: 0.9rem;
-            }
-            .sidebar-section {
-                margin-bottom: 20px;
-            }
-            /* Make toggles slightly bigger for touch */
-            .toggle-box {
-                padding: 15px;
-                font-size: 1rem;
-            }
-        }
-    </style>
+</style>
 </head>
 <body>
+<header>
+<div class="header-title">
+<h1>Ghost Tracker</h1>
+<span style="font-size:0.7rem;color:var(--text-muted);">The Other Side</span>
+</div>
+<div class="header-actions">
+<button class="hunt-mode-btn" id="huntModeBtn" onclick="toggleHuntMode()">Hunt Mode</button>
+</div>
+</header>
 
-    <header>
-        <h1>Ghost Tracker - The Other Side</h1>
-    </header>
+<div class="main-content">
+<aside class="sidebar">
+<div class="sidebar-scroll">
+<button class="reset-all-btn" onclick="resetAll()">Reset All</button>
 
-    <div class="main-content">
-        <div class="sidebar">
-            <div class="sidebar-scroll">
-                <button class="reset-all-btn" onclick="resetAll()">Reset everything</button>
+<div class="sidebar-section">
+<h3>Evidence Found</h3>
+<div class="evidence-grid" id="evidence-container"></div>
+<button class="no-ev-btn" id="noEvBtn" onclick="toggleNoEvidence()">No Evidence Found</button>
+</div>
 
-                <div class="sidebar-section">
-                    <h3>Evidence</h3>
-                    <div class="evidence-grid" id="evidence-container"></div>
-                </div>
+<div class="sidebar-section">
+<h3>Behaviors &amp; Interactions</h3>
+<div class="toggle-box action breaker" id="btn-breaker" data-state="0" onclick="cycleBinary(this,'breaker')"><span>Breaker</span></div>
+<div class="toggle-box action manifest" id="btn-manifest" data-state="0" onclick="cycleBinary(this,'manifest')"><span>Manifest</span></div>
+<div class="toggle-box action holy" id="btn-holy" data-state="0" onclick="cycleBinary(this,'holy')"><span>Holy Spray</span></div>
+<div class="toggle-box action doors" id="btn-doors" data-state="0" onclick="cycleBinary(this,'doors')"><span>Doors</span></div>
+<div class="toggle-box action candle" id="btn-candle" data-state="0" onclick="cycleBinary(this,'candle')"><span>Candles</span></div>
+<div class="toggle-box action flx" id="btn-flx" data-state="0" onclick="cycleBinary(this,'flx')"><span>FLX-POD</span></div>
+<div class="toggle-box lights" id="btn-lights" data-state="0" onclick="cycleLights(this)"><span>Lights</span></div>
+<div class="toggle-box radio" id="btn-radio" data-state="0" onclick="cycleRadio(this)"><span>Radios</span></div>
 
-                <div class="sidebar-section">
-                    <h3>Behaviors and Interactions</h3>
-                    <div class="toggle-box action manifest" id="btn-manifest" data-state="0" onclick="cycleBinary(this, 'manifest')">Manifestations - </div>
-                    <div class="toggle-box action holy" id="btn-holy" data-state="0" onclick="cycleBinary(this, 'holy')">Holy Spray Time - </div>
-                    <div class="toggle-box action doors" id="btn-doors" data-state="0" onclick="cycleBinary(this, 'doors')">Doors - </div>
-                    <div class="toggle-box action candle" id="btn-candle" data-state="0" onclick="cycleBinary(this, 'candle')">Candles - </div>
-                    <div class="toggle-box action flx" id="btn-flx" data-state="0" onclick="cycleBinary(this, 'flx')">FLX-POD - </div>
-                    <div class="toggle-box lights" id="btn-lights" data-state="0" onclick="cycleLights(this)">Lights - </div>
-                    <div class="toggle-box radio" id="btn-radio" data-state="0" onclick="cycleRadio(this)">Radios - </div>
+<div class="timer-container">
+<div class="timer-display" id="timerDisplay">00:00</div>
+<div class="timer-controls">
+<button class="timer-btn btn-start" id="btnStart" onclick="startTimer()">Start</button>
+<button class="timer-btn btn-stop" id="btnStop" onclick="stopTimer()">Stop</button>
+<button class="timer-btn btn-reset" onclick="resetTimer()">Reset</button>
+</div>
+</div>
+</div>
 
-                    <div class="timer-container">
-                        <div class="timer-display" id="timerDisplay">00:00</div>
-                        <div class="timer-controls">
-                            <button class="timer-btn btn-start" id="btnStart" onclick="startTimer()">Start</button>
-                            <button class="timer-btn btn-stop" id="btnStop" onclick="stopTimer()">Stop</button>
-                            <button class="timer-btn btn-reset" onclick="resetTimer()">Reset</button>
-                        </div>
-                    </div>
-                </div>
+<div class="sidebar-section">
+<h3>Speed &amp; Range</h3>
+<select id="speed-select" class="select-drop" onchange="filterGhosts()">
+<option value="all">Any Base Speed</option>
+<option value="Normal">Normal</option>
+<option value="Fast">Fast</option>
+<option value="Variable">Variable</option>
+</select>
+<select id="losspeed-select" class="select-drop" onchange="filterGhosts()">
+<option value="all">Any LOS Speed</option>
+<option value="Normal">Normal</option>
+<option value="Medium">Medium</option>
+<option value="Fast">Fast</option>
+</select>
+<select id="los-select" class="select-drop" onchange="filterGhosts()">
+<option value="all">Any LOS Range</option>
+<option value="Low">Low</option>
+<option value="Normal">Normal</option>
+<option value="High">High</option>
+<option value="Very High">Very High</option>
+<option value="Variable">Variable</option>
+</select>
+</div>
 
-                <div class="sidebar-section">
-                    <h3>Speeds and Range</h3>
-                    <select id="speed-select" onchange="filterGhosts()" style="width:100%; padding:12px; background:#2c2c2c; color:white; border:1px solid #333; border-radius:4px; font-size:1rem; margin-bottom: 8px; min-height: 34px;">
-                        <option value="all">Any Base Speed</option>
-                        <option value="Normal">Normal Speed</option>
-                        <option value="Fast">Fast</option>
-                        <option value="Variable">Variable / Situational</option>
-                    </select>
+<div style="font-size:0.7rem;color:var(--text-muted);text-align:center;margin-top:16px;">Created by Create_by_colegas</div>
+</div>
+</aside>
 
-                    <select id="losspeed-select" onchange="filterGhosts()" style="width:100%; padding:12px; background:#2c2c2c; color:white; border:1px solid #333; border-radius:4px; font-size:1rem; margin-bottom: 8px; min-height: 34px;">
-                        <option value="all">Any LOS Speed</option>
-                        <option value="Normal">Normal</option>
-                        <option value="Medium">Medium</option>
-                        <option value="Fast">Fast</option>
-                    </select>
+<main class="content-area">
+<div class="ghost-count" id="ghostCount">Showing <span id="ghostCountNum">0</span> ghosts</div>
+<div class="content-scroll">
+<div class="ghost-grid" id="ghostGrid"></div>
+</div>
+</main>
+</div>
 
-                    <select id="los-select" onchange="filterGhosts()" style="width:100%; padding:12px; background:#2c2c2c; color:white; border:1px solid #333; border-radius:4px; font-size:1rem; min-height: 34px;">
-                        <option value="all">Any LOS Range</option>
-                        <option value="Low">Low (Short Range)</option>
-                        <option value="Normal">Normal Range</option>
-                        <option value="High">High (Long Range)</option>
-                        <option value="Very High">Very High (Map Wide/Extreme)</option>
-                        <option value="Variable">Variable (Light Dependent)</option>
-                     </select>
-                </div>
+<script>/* === GHOST DATA === */
+const ghosts = [
+{name:"Banshee",ev:["Audio","EMF 20+","Radiation"],speed:"Normal",losspeed:"Normal",los:"Normal",hw:"Normal (3s)",lore:"A chilling presence.",desc:["Blows out candles","Electrical interference","Screams on Spirit/Boom Box"],tags:["extinguish","lights-on","lights-off","doors","radio-on","radio-off","spray-normal"]},
+{name:"Bhoot",ev:["Freezing","Radiation","Writing"],speed:"Normal",losspeed:"Normal",los:"Normal",hw:"Normal (3s)",lore:"A tormented spirit.",desc:["Blows out candles","Room gets cold before hunt","Longer hunt cooldown"],tags:["extinguish","lights-on","lights-off","doors","radio-on","radio-off","long-cooldown","spray-normal"]},
+{name:"Demon",ev:["Radiation","UV","Writing"],speed:"Fast",losspeed:"Normal",los:"Low",hw:"More Effective (5s)",lore:"An unrelenting force.",desc:["Blows out candles","Holy Spray stops hunt 2min","Hunts at 90 BPM","Leaves hot temps","Shorter cooldown"],tags:["extinguish","lights-off","lights-on","doors","radio-on","radio-off","short-cooldown","spray-more"]},
+{name:"Doppelganger",ev:["Audio","UV","Writing"],speed:"Variable",losspeed:"Normal",los:"Low",hw:"Normal (3s)",lore:"A deceptive spirit.",desc:["Blows out candles","Returns to room before hunt","Short LOS"],tags:["extinguish","lights-on","lights-off","doors","radio-on","radio-off","spray-normal"]},
+{name:"Iblis",ev:["Audio","Freezing","Writing"],speed:"Fast",losspeed:"Medium",los:"Normal",hw:"Normal (3s)",lore:"Powerful and enigmatic.",desc:["Blows out candles","Speed increase","Shapeshifts during hunt"],tags:["extinguish","lights-on","lights-off","doors","radio-on","radio-off","spray-normal"]},
+{name:"Phantom",ev:["Audio","Radiation","UV"],speed:"Normal",losspeed:"Normal",los:"Normal",hw:"Normal (3s)",lore:"A sinister entity.",desc:["Ignores candles","Ignores FLX-POD","Only turns radios off","Shadow manifestations"],tags:["candles-ignore","flx-ignore","lights-on","lights-off","doors","radio-off","no-radio-on","shadow-only","spray-normal"]},
+{name:"Poltergeist",ev:["EMF 20+","Radiation","Writing"],speed:"Normal",losspeed:"Medium",los:"Normal",hw:"Normal (3s)",lore:"A chaotic entity.",desc:["Blows out candles","Speed increase","Throws multiple objects"],tags:["extinguish","lights-on","lights-off","doors","radio-on","radio-off","spray-normal"]},
+{name:"Revenant",ev:["EMF 20+","UV","Writing"],speed:"Normal",losspeed:"Normal",los:"Normal",hw:"Normal (3s)",lore:"Relentless.",desc:["Blows out candles","Stamina drains faster when targeted"],tags:["extinguish","lights-on","lights-off","doors","radio-on","radio-off","spray-normal"]},
+{name:"Shura",ev:["EMF 20+","Freezing","Writing"],speed:"Fast",losspeed:"Fast",los:"High",hw:"Normal (3s)",lore:"A cursed spirit.",desc:["Blows out candles","Hard to break LOS","Speed increase","Shorter cooldown"],tags:["extinguish","lights-on","lights-off","doors","radio-on","radio-off","short-cooldown","spray-normal"]},
+{name:"Skia",ev:["Audio","EMF 20+","UV"],speed:"Fast",losspeed:"Fast",los:"Normal",hw:"Normal (3s)",lore:"A guardian spirit.",desc:["Ignores candles","Ignores FLX-POD","Whiny when close","Rushes then slows","Unique Spirit Box","Longer cooldown"],tags:["candles-ignore","flx-ignore","lights-on","lights-off","doors","radio-on","radio-off","long-cooldown","spray-normal"]},
+{name:"Strigoi",ev:["Freezing","UV","Writing"],speed:"Variable",losspeed:"Medium",los:"Normal",hw:"Normal (3s)",lore:"Restless.",desc:["Ignores candles","Raises heart rate","Speed increase","Never turns radios off","Shadow only"],tags:["candles-ignore","lights-on","lights-off","doors","radio-on","no-radio-off","shadow-only","spray-normal"]},
+{name:"Tantalus",ev:["EMF 20+","Freezing","UV"],speed:"Fast",losspeed:"Medium",los:"Normal",hw:"Normal (3s)",lore:"Aggressive.",desc:["Blows out candles","Ignores FLX-POD","Speed increase","Never slams doors"],tags:["extinguish","flx-ignore","no-doors","lights-on","lights-off","radio-on","radio-off","spray-normal"]},
+{name:"Tariaksuq",ev:["Audio","EMF 20+","Freezing"],speed:"Normal",losspeed:"Normal",los:"Normal",hw:"Normal (3s)",lore:"Shadowy and elusive.",desc:["Blows out 10 candles","Turns lights off only","Holy Spray stops hunt 90s","Shadow only"],tags:["extinguish","lights-off","no-lights-on","doors","radio-on","radio-off","shadow-only","spray-normal"]},
+{name:"The Echo",ev:["Freezing","Radiation","UV"],speed:"Normal",losspeed:"Normal",los:"Normal",hw:"Normal (3s)",lore:"A passive residual spirit.",desc:["Ignores candles","Ignores FLX-POD","Ignores lights and radios","Ignores breaker"],tags:["candles-ignore","lights-ignore","radio-ignore","flx-ignore","no-lights-on","doors","no-radios","no-breaker","spray-normal"]},
+{name:"The Forgotten",ev:["EMF 20+","Radiation","UV"],speed:"Fast",losspeed:"Medium",los:"Normal",hw:"Normal (3s)",lore:"A nearly silent presence.",desc:["Blows out candles","Ignores FLX-POD","Speed increase","Hard to ID"],tags:["extinguish","flx-ignore","lights-on","lights-off","doors","radio-on","radio-off","spray-normal"]},
+{name:"Wewe Gombel",ev:["EMF 20+","Freezing","Radiation"],speed:"Normal",losspeed:"Fast",los:"Normal",hw:"More Effective (5s)",lore:"A vengeful spirit.",desc:["Blows out candles","Drastic speed increase","Only turns lights off","Can't use breaker","Shorter cooldown"],tags:["extinguish","lights-off","no-lights-on","doors","radio-on","radio-off","no-breaker","short-cooldown","spray-more"]},
+{name:"Wisp",ev:["Audio","Freezing","Radiation"],speed:"Fast",losspeed:"Medium",los:"Normal",hw:"More Effective (5s)",lore:"Fast and alluring.",desc:["Ignores candles","Turns lights on only","Speed increase","Holy Spray stops hunt 2min"],tags:["candles-ignore","lights-on","doors","radio-on","radio-off","spray-more"]},
+{name:"Wraith",ev:["Audio","Freezing","UV"],speed:"Fast",losspeed:"Fast",los:"Very High",hw:"More Effective (5s)",lore:"Swift and vengeful.",desc:["Blows out candles","No feet during hunt","Targets specific player","Very high LOS","Holy Spray reduces speed","No heartbeat"],tags:["extinguish","lights-on","lights-off","doors","radio-on","radio-off","spray-more"]},
+];
 
-                <div style="font-size: 0.7rem; color: #666; text-align: center; margin-top: 20px;">Unofficial Ghost Tracker - Created by Create_by_colegas</div>
+const evidenceTypes = ["Audio","EMF 20+","Freezing","Radiation","UV","Writing"];
+let activeEvidence = new Set();
+let excludedEvidence = new Set();
+let eliminatedGhosts = new Set();
+let noEvidenceMode = false;
+let huntMode = false;
+let timerInterval = null;
+let seconds = 0;
+let isRunning = false;
 
-            </div>
-        </div>
- 
-        <div class="content-area">
-            <div class="ghost-grid" id="ghostGrid"></div>
-        </div>
+/* === TOGGLE STATES === */
+let candleState = 0, lightsState = 0, radioState = 0, holyState = 0;
+let doorState = 0, flxState = 0, breakerState = 0, manifestState = 0;
 
-   </div>
+window.onload = function() {
+renderEvidenceButtons();
+renderGhosts(ghosts);
+};
 
-   <script>
-        /* DATASET MERGED & CORRECTED */
-        /* This section defines the entire data sets for all ghosts - Guu */
-        const ghosts = [
-            { 
-                name: "Banshee", ev: ["Audio", "EMF 20+", "Radiation"], speed: "Normal", losspeed: "Normal", los: "Normal", hw: "Normal (3 Seconds)", 
-                lore: "The Banshee is a chilling presence.",
-                desc: ["Can blow out candles", "Causes electrical interferences", "Screams on Spirit/Boom Box"], 
-                tags: ["extinguish", "lights-on", "lights-off", "doors", "radio-on", "radio-off", "spray-normal"] 
-            },
-            { 
-                name: "Bhoot", ev: ["Freezing", "Radiation", "Writing"], speed: "Normal", losspeed: "Normal", los: "Normal", hw: "Normal (3 Seconds)", 
-                lore: "The Bhoot is a tormented spirit.",
-                desc: ["Can blow out candles", "Room gets very cold just before hunt", "Longer hunt cooldown"], 
-                tags: ["extinguish", "lights-on", "lights-off", "doors", "radio-on", "radio-off", "long-cooldown", "spray-normal"] 
-            },
-            { 
-                name: "Demon", ev: ["Radiation", "UV", "Writing"], speed: "Fast", losspeed: "Normal", los: "Low", hw: "More Effective (5 Seconds)", 
-                lore: "The Demon is an unrelenting force of malice.",
-                desc: ["Can blow out candles", "Holy Spray stops hunt for 2 minutes", "Hunts at 90 BPM (under ~5 minutes)", "Leaves hot temps on touched objects", "Shorter hunt cooldown"], 
-                tags: ["extinguish", "lights-off", "lights-on", "doors", "radio-on", "radio-off", "short-cooldown", "spray-more"] 
-            },
-            { 
-                name: "Doppelganger", ev: ["Audio", "UV", "Writing"], speed: "Variable", losspeed: "Normal", los: "Low", hw: "Normal (3 Seconds)", 
-                lore: "The Doppleganger is a deceptive spirit.",
-                desc: ["Can blow out candles", "Returns to favorite room before hunt", "Shorter distance LOS"], 
-                tags: ["extinguish", "lights-on", "lights-off", "doors", "radio-on", "radio-off", "spray-normal"] 
-            },
-            { 
-                name: "Iblis", ev: ["Audio", "Freezing", "Writing"], speed: "Fast", losspeed: "Medium", los: "Normal", hw: "Normal (3 Seconds)", 
-                lore: "The Iblis is a powerful and enigmatic entity.",
-                desc: ["Can blow out candles", "Increases speed slightly", "Shapeshifts during hunt"], 
-                tags: ["extinguish", "lights-on", "lights-off", "doors", "radio-on", "radio-off", "spray-normal"] 
-            },
-            { 
-                name: "Phantom", ev: ["Audio", "Radiation", "UV"], speed: "Normal", losspeed: "Normal", los: "Normal", hw: "Normal (3 Seconds)", 
-                lore: "The Phantom is a sinister entity.",
-                desc: ["Ignores candles", "Ignores FLX-POD", "Only turns radios off", "Shadow manifestations only"], 
-                tags: ["candles-ignore", "flx-ignore", "lights-on", "lights-off", "doors", "radio-off", "no-radio-on", "shadow-only", "spray-normal"] 
-            },
-            { 
-                name: "Poltergeist", ev: ["EMF 20+", "Radiation", "Writing"], speed: "Normal", losspeed: "Medium", los: "Normal", hw: "Normal (3 Seconds)", 
-                lore: "The Poltergeist is a chaotic entity.",
-                desc: ["Can blow out candles", "Increases speed slightly", "Throws multiple objects"], 
-                tags: ["extinguish", "lights-on", "lights-off", "doors", "radio-on", "radio-off", "spray-normal"] 
-            },
-            { 
-                name: "Revenant", ev: ["EMF 20+", "UV", "Writing"], speed: "Normal", losspeed: "Normal", los: "Normal", hw: "Normal (3 Seconds)", 
-                lore: "The Revenant is relentless.",
-                desc: ["Can blow out candles", "Once targeted, stamina will drain faster (in around 4 seconds)"], 
-                tags: ["extinguish", "lights-on", "lights-off", "doors", "radio-on", "radio-off", "spray-normal"] 
-            },
-            { 
-                name: "Shura", ev: ["EMF 20+", "Freezing", "Writing"], speed: "Fast", losspeed: "Fast", los: "High", hw: "Normal (3 Seconds)", 
-                lore: "The Shura is a cursed spirit.",
-                desc: ["Can blow out candles", "Harder to break LOS (High Range)", "Increases speed", "Shorter hunt cooldown"], 
-                tags: ["extinguish", "lights-on", "lights-off", "doors", "radio-on", "radio-off", "short-cooldown", "spray-normal"] 
-            },
-            { 
-                name: "Skia", ev: ["Audio", "EMF 20+", "UV"], speed: "Fast", losspeed: "Fast", los: "Normal", hw: "Normal (3 Seconds)", 
-                lore: "The Skia is a guardian spirit.",
-                desc: ["Ignores candles", "Ignores FLX-POD", "Can be a bit whiny if you get too close", "Rushes target then slows to normal", "Can give unique Spirit Box responses", "Longer hunt cooldown"], 
-                tags: ["candles-ignore", "flx-ignore", "lights-on", "lights-off", "doors", "radio-on", "radio-off", "long-cooldown", "spray-normal"] 
-            },
-            { 
-                name: "Strigoi", ev: ["Freezing", "UV", "Writing"], speed: "Variable", losspeed: "Medium", los: "Normal", hw: "Normal (3 Seconds)", 
-                lore: "The Strigoi is restless.",
-                desc: ["Ignores candles", "Actively raises heart rate in same room", "Increases speed slightly", "Never turns radios off, only on", "Shadow manifestations only"], 
-                tags: ["candles-ignore", "lights-on", "lights-off", "doors", "radio-on", "no-radio-off", "shadow-only", "spray-normal"] 
-            },
-            { 
-                name: "Tantalus", ev: ["EMF 20+", "Freezing", "UV"], speed: "Fast", losspeed: "Medium", los: "Normal", hw: "Normal (3 Seconds)", 
-                lore: "The Tantalus is an aggressive spirit.",
-                desc: ["Can blow out candles","Ignores FLX-POD", "Increases speed slightly", "Never slams doors in your face"], 
-                tags: ["extinguish", "flx-ignore", "no-doors", "lights-on", "lights-off", "radio-on", "radio-off", "spray-normal"] 
-            },
-            { 
-                name: "Tariaksuq", ev: ["Audio", "EMF 20+", "Freezing"], speed: "Normal", losspeed: "Normal", los: "Normal", hw: "Normal (3 Seconds)", 
-                lore: "The Tariaksuq is a shadowy, elusive entity.",
-                desc: ["Can blow out candles (up to 10 at once)", "Frequently turns lights off, never on", "Holy Spray stops hunt for 90 seconds", "Shadow manifestations only"], 
-                tags: ["extinguish", "lights-off", "no-lights-on", "doors", "radio-on", "radio-off", "shadow-only", "spray-normal"] 
-            },
-            { 
-                name: "The Echo", ev: ["Freezing", "Radiation", "UV"], speed: "Normal", losspeed: "Normal", los: "Normal", hw: "Normal (3 Seconds)", 
-                lore: "A passive, residual spirit.",
-                desc: ["Ignores candles", "Ignores FLX-POD", "Ignores lights and radios", "Ignores main breaker except post-hunt"], 
-                tags: ["candles-ignore", "lights-ignore", "radio-ignore", "flx-ignore", "no-lights-on", "doors", "no-radios", "no-breaker", "spray-normal"] 
-            },
-            { 
-                name: "The Forgotten", ev: ["EMF 20+", "Radiation", "UV"], speed: "Fast", losspeed: "Medium", los: "Normal", hw: "Normal (3 Seconds)", 
-                lore: "A nearly silent presence.",
-                desc: ["Can blow out candles","Ignores FLX-POD", "Increases speed slightly", "Hardest to ID with no evidence"], 
-                tags: ["extinguish", "flx-ignore", "lights-on", "lights-off", "doors", "radio-on", "radio-off", "spray-normal"] 
-            },
-            { 
-                name: "Wewe Gombel", ev: ["EMF 20+", "Freezing", "Radiation"], speed: "Normal", losspeed: "Fast", los: "Normal", hw: "More Effective (5 Seconds)", 
-                lore: "A vengeful spirit.",
-                desc: ["Can blow out candles", "Increases speed drastically", "Can only turn lights off", "Can't use main breaker except post-hunt", "Shorter hunt cooldown"], 
-                tags: ["extinguish", "lights-off", "no-lights-on", "doors", "radio-on", "radio-off", "no-breaker", "short-cooldown", "spray-more"] 
-            },
-            { 
-                name: "Wisp", ev: ["Audio", "Freezing", "Radiation"], speed: "Fast", losspeed: "Medium", los: "Normal", hw: "More Effective (5 Seconds)", 
-                lore: "A fast, deceptive, and alluring spirit.",
-                desc: ["Ignores candles", "Frequently turns lights on, never off", "Increases speed slightly", "Holy Spray stops hunt for 2 minutes"], 
-                tags: ["candles-ignore", "lights-on", "doors", "radio-on", "radio-off", "spray-more"] 
-            },
-            { 
-                name: "Wraith", ev: ["Audio", "Freezing", "UV"], speed: "Fast", losspeed: "Fast", los: "Very High", hw: "More Effective (5 Seconds)", 
-                lore: "A swift and vengeful entity.",
-                desc: ["Can blow out candles", "Has no feet or footsteps during hunt", "Targets specific player", "Very high LOS, but it breaks easily", "Holy Spray reduces speed", "No heartbeat heard near player"], 
-                tags: ["extinguish", "lights-on", "lights-off", "doors", "radio-on", "radio-off", "spray-more"] 
-            }
-        ];
+/* === RENDER FUNCTIONS === */
+function renderEvidenceButtons() {
+const c = document.getElementById('evidence-container');
+evidenceTypes.forEach(ev => {
+const b = document.createElement('div');
+b.className = 'ev-btn';
+b.innerText = ev;
+b.setAttribute('data-ev', ev);
+b.onclick = () => toggleEvidence(b, ev);
+c.appendChild(b);
+});
+}
 
-        // EVIDENCE TYPES
-        const evidenceTypes = ["Audio", "EMF 20+", "Freezing", "Radiation", "UV", "Writing"];
-        
-        let activeEvidence = new Set();
-        let excludedEvidence = new Set(); // NEW: Track ruled out evidence
-        let eliminatedGhosts = new Set();
-        let candleState = 0; 
-        let lightsState = 0;
-        let radioState = 0;
-        let holyState = 0;
-        let huntState = 0;
-        let doorState = 0;
-        let flxState = 0;
-        let breakerState = 0;
-        let manifestState = 0; // NEW TOGGLE STATE
-        let timerInterval = null;
-        let seconds = 0;
-        let isRunning = false;
+function renderGhosts(list) {
+const g = document.getElementById('ghostGrid');
+const gc = document.getElementById('ghostCountNum');
+gc.innerText = list.length;
 
-        window.onload = function() {
-            renderEvidenceButtons();
-            renderGhosts(ghosts);
-        };
+if(list.length === 0) {
+g.innerHTML = '<div class="empty-state"><h4>No ghosts match your filters</h4><p>Try adjusting evidence or behavior settings.</p></div>';
+return;
+}
 
-        /* RENDER FUNCTIONS */
-        function renderEvidenceButtons() {
-            const container = document.getElementById('evidence-container');
-            evidenceTypes.forEach(ev => {
-                const btn = document.createElement('div');
-                btn.className = 'ev-btn';
-                btn.innerText = ev;
-                btn.setAttribute('data-ev', ev);
-                btn.onclick = () => toggleEvidence(btn, ev);
-                container.appendChild(btn);
-            });
-        }
+g.innerHTML = '';
+list.forEach(gh => {
+let evChips = gh.ev.map(e => {
+let m = activeEvidence.has(e) ? 'match' : '';
+return '<span class="evidence-chip '+m+'" data-ev="'+e+'">'+e+'</span>';
+}).join('');
+let descHTML = gh.desc.map(d => '<span class="behavior-point">'+d+'</span>').join('');
 
-        function renderGhosts(list) {
-            const grid = document.getElementById('ghostGrid');
-            grid.innerHTML = "";
-            
-            if(list.length === 0) {
-                grid.innerHTML = `<div style="color:#666; text-align:center; padding: 20px;">No ghosts match criteria.</div>`;
-                return;
-            }
+let speedColor = '#22c55e';
+if(gh.speed === 'Fast') speedColor = '#ef4444';
+if(gh.speed === 'Variable') speedColor = '#a855f7';
 
-            list.forEach(g => {
-                let evTags = g.ev.map(e => {
-                    let isMatch = activeEvidence.has(e) ? 'match' : '';
-                    return `<span class="evidence-tag ${isMatch}" data-ev="${e}">${e}</span>`;
-                }).join('');
+let losspeedColor = '#32cd32';
+if(gh.losspeed === 'Medium') losspeedColor = '#eab308';
+if(gh.losspeed === 'Fast') losspeedColor = '#ef4444';
 
-                let descHTML = g.desc.map(d => `<span class="behavior-point">${d}</span>`).join('');
+let losColor = '#32cd32';
+if(gh.los === 'Low') losColor = '#eab308';
+if(gh.los === 'High') losColor = '#ef4444';
+if(gh.los === 'Very High') losColor = '#7f1d1d';
+if(gh.los === 'Variable') losColor = '#a855f7';
 
-                const card = document.createElement('div');
-                card.className = "ghost-card";
-                if(eliminatedGhosts.has(g.name)) card.classList.add('eliminated');
-                
-                card.onclick = () => toggleElimination(g.name, card);
+let hwColor = '#ef4444';
+if(gh.hw.includes('Effective') && !gh.hw.includes('Less')) hwColor = '#22c55e';
 
-                // COLOR LOGIC FOR SPEED
-                let speedColor = '#32cd32'; // Default Normal
-                if (g.speed === 'Fast') speedColor = '#ff4444'; 
-                if (g.speed === 'Variable') speedColor = '#bb86fc'; 
+const card = document.createElement('div');
+card.className = 'ghost-card';
+if(eliminatedGhosts.has(gh.name)) card.classList.add('eliminated');
+if(huntMode) card.classList.add('candidate');
 
-                // COLOR LOGIC FOR LOS SPEED
-                let losspeedColor = '#ffd700'; // Default Normal
-                if (g.losspeed === 'Normal') losspeedColor = '#32cd32';
-                if (g.losspeed === 'Medium') losspeedColor = '#ffd700'; 
-                if (g.losspeed === 'Fast') losspeedColor = '#ff4444'; 
+card.onclick = () => toggleElimination(gh.name, card);
 
-                // COLOR LOGIC FOR LOS RANGE
-                let losColor = '#32cd32'; // Default Normal
-                if (g.los === 'Low') losColor = '#ffd700';
-                if (g.los === 'High') losColor = '#ff4444'; 
-                if (g.los === 'Very High') losColor = '#8b0000'; 
-                if (g.los === 'Variable') losColor = '#bb86fc'; 
+card.innerHTML = '<div class="ghost-header"><span class="ghost-name">'+gh.name+'</span>'+
+(gh.speed === 'Fast' ? '<span class="badge badge-fast">Fast</span>' : gh.speed === 'Variable' ? '<span class="badge badge-variable">Var</span>' : '')+
+'</div>'+
+'<div class="ghost-lore">'+gh.lore+'</div>'+
+'<div class="ghost-behavior">'+descHTML+'</div>'+
+'<div class="evidence-chips">'+evChips+'</div>'+
+'<div class="stats-row">'+
+'<div class="stat"><span class="stat-label">Speed</span><span class="stat-val" style="color:'+speedColor+'">'+gh.speed+'</span></div>'+
+'<div class="stat"><span class="stat-label">LOS Speed</span><span class="stat-val" style="color:'+losspeedColor+'">'+gh.losspeed+'</span></div>'+
+'<div class="stat"><span class="stat-label">LOS Range</span><span class="stat-val" style="color:'+losColor+'">'+gh.los+'</span></div>'+
+'<div class="stat"><span class="stat-label">Holy Spray</span><span class="stat-val" style="color:'+hwColor+'">'+gh.hw+'</span></div>'+
+'</div>';
+g.appendChild(card);
+});
+}
+/* === LOGIC FUNCTIONS === */
+function toggleElimination(name, card) {
+if(eliminatedGhosts.has(name)) {
+eliminatedGhosts.delete(name);
+card.classList.remove('eliminated');
+} else {
+eliminatedGhosts.add(name);
+card.classList.add('eliminated');
+}
+}
 
-                let hwColor = '#ff4444'; 
-                if (g.hw.includes('Effective') && !g.hw.includes('Less')) hwColor = '#32cd32'; 
+function toggleEvidence(btn, type) {
+if(activeEvidence.has(type)) {
+activeEvidence.delete(type);
+excludedEvidence.add(type);
+btn.classList.remove('active');
+btn.classList.add('excluded');
+} else if(excludedEvidence.has(type)) {
+excludedEvidence.delete(type);
+btn.classList.remove('excluded');
+} else {
+activeEvidence.add(type);
+btn.classList.add('active');
+}
+filterGhosts();
+}
 
-                card.innerHTML = `
-                    <div class="ghost-name">${g.name}</div>
-                    <div class="ghost-lore">${g.lore}</div>
-                    <div class="ghost-behavior">${descHTML}</div>
-                    <div class="evidence-items">${evTags}</div>
-                    <div class="stats-container">
-                        <div class="stat-item"><span>Base Speed</span> <span class="stat-val" style="color:${speedColor}">${g.speed}</span></div>
-                        <div class="stat-item"><span>LOS Speed Increase</span> <span class="stat-val" style="color:${losspeedColor}">${g.losspeed}</span></div>
-                        <div class="stat-item"><span>LOS Range</span> <span class="stat-val" style="color:${losColor}">${g.los}</span></div>
-                        <div class="stat-item"><span>Holy Spray Time</span> <span class="stat-val" style="color:${hwColor}">${g.hw}</span></div>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
+function toggleNoEvidence() {
+noEvidenceMode = !noEvidenceMode;
+const btn = document.getElementById('noEvBtn');
+if(noEvidenceMode) {
+btn.classList.add('active');
+btn.innerText = 'Evidence Found';
+} else {
+btn.classList.remove('active');
+btn.innerText = 'No Evidence Found';
+}
+filterGhosts();
+}
 
-        /* LOGIC */
-        function toggleElimination(name, card) {
-            if(eliminatedGhosts.has(name)) {
-                eliminatedGhosts.delete(name);
-                card.classList.remove('eliminated');
-            } else {
-                eliminatedGhosts.add(name);
-                card.classList.add('eliminated');
-            }
-        }
+function toggleHuntMode() {
+huntMode = !huntMode;
+const btn = document.getElementById('huntModeBtn');
+btn.style.background = huntMode ? 'rgba(34,197,94,0.2)' : '';
+btn.style.color = huntMode ? 'var(--success)' : '';
+btn.style.borderColor = huntMode ? 'var(--success)' : '';
+filterGhosts();
+}
 
-        // UPDATED: 3-Way Toggle (Neutral -> Active -> Excluded -> Neutral)
-        function toggleEvidence(btn, type) {
-            
-            // 1. If currently ACTIVE -> Switch to EXCLUDED
-            if(activeEvidence.has(type)) {
-                activeEvidence.delete(type);
-                excludedEvidence.add(type);
-                btn.classList.remove('active');
-                btn.classList.add('excluded');
-            }
-            // 2. If currently EXCLUDED -> Switch to NEUTRAL
-            else if(excludedEvidence.has(type)) {
-                excludedEvidence.delete(type);
-                btn.classList.remove('excluded');
-            }
-            // 3. If currently NEUTRAL -> Switch to ACTIVE
-            else {
-                activeEvidence.add(type);
-                btn.classList.add('active');
-            }
+function cycleLights(btn) {
+lightsState = (lightsState + 1) % 5;
+btn.dataset.state = lightsState;
+filterGhosts();
+}
 
-            filterGhosts();
-        }
+function cycleRadio(btn) {
+radioState = (radioState + 1) % 5;
+btn.dataset.state = radioState;
+filterGhosts();
+}
 
-        function cycleLights(btn) {
-            lightsState = (lightsState + 1) % 5;
-            btn.dataset.state = lightsState;
-            filterGhosts();
-        }
+function cycleBinary(btn, type) {
+if(type === 'doors') { doorState = (doorState + 1) % 3; btn.dataset.state = doorState; }
+else if(type === 'candle') { candleState = (candleState + 1) % 3; btn.dataset.state = candleState; }
+else if(type === 'holy') { holyState = (holyState + 1) % 3; btn.dataset.state = holyState; }
+else if(type === 'flx') { flxState = (flxState + 1) % 3; btn.dataset.state = flxState; }
+else if(type === 'breaker') { breakerState = (breakerState + 1) % 3; btn.dataset.state = breakerState; }
+else if(type === 'manifest') { manifestState = (manifestState + 1) % 3; btn.dataset.state = manifestState; }
+filterGhosts();
+}
+function resetAll() {
+activeEvidence.clear();
+excludedEvidence.clear();
+eliminatedGhosts.clear();
+noEvidenceMode = false;
+huntMode = false;
+document.querySelectorAll('.ev-btn').forEach(b => { b.classList.remove('active','excluded'); });
+document.querySelectorAll('.toggle-box').forEach(b => b.dataset.state = 0);
+document.getElementById('speed-select').value = 'all';
+document.getElementById('losspeed-select').value = 'all';
+document.getElementById('los-select').value = 'all';
+document.getElementById('noEvBtn').classList.remove('active');
+document.getElementById('noEvBtn').innerText = 'No Evidence Found';
+const hb = document.getElementById('huntModeBtn');
+hb.style.background = ''; hb.style.color = ''; hb.style.borderColor = '';
+candleState = lightsState = radioState = holyState = 0;
+doorState = flxState = breakerState = manifestState = 0;
+document.getElementById('btn-candle').dataset.state = 0;
+document.getElementById('btn-lights').dataset.state = 0;
+document.getElementById('btn-radio').dataset.state = 0;
+document.getElementById('btn-holy').dataset.state = 0;
+document.getElementById('btn-doors').dataset.state = 0;
+document.getElementById('btn-flx').dataset.state = 0;
+document.getElementById('btn-breaker').dataset.state = 0;
+document.getElementById('btn-manifest').dataset.state = 0;
+filterGhosts();
+resetTimer();
+}
 
-        function cycleRadio(btn) {
-            radioState = (radioState + 1) % 5;
-            btn.dataset.state = radioState;
-            filterGhosts();
-        }
+/* === TIMER === */
+function startTimer() {
+if(isRunning) return;
+isRunning = true;
+document.getElementById('btnStart').style.display = 'none';
+document.getElementById('btnStop').style.display = 'inline-block';
+timerInterval = setInterval(() => { seconds++; updateTimerDisplay(); }, 1000);
+}
+function stopTimer() {
+if(!isRunning) return;
+isRunning = false;
+clearInterval(timerInterval);
+document.getElementById('btnStart').style.display = 'inline-block';
+document.getElementById('btnStop').style.display = 'none';
+}
+function resetTimer() {
+stopTimer();
+seconds = 0;
+updateTimerDisplay();
+}
+function updateTimerDisplay() {
+const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+const s = (seconds % 60).toString().padStart(2, '0');
+document.getElementById('timerDisplay').innerText = m + ':' + s;
+}
+/* === FILTER === */
+function filterGhosts() {
+const sp = document.getElementById('speed-select').value;
+const lsp = document.getElementById('losspeed-select').value;
+const los = document.getElementById('los-select').value;
 
-        function cycleBinary(btn, type) {
-            if (type === 'doors') {
-                doorState = (doorState + 1) % 3;
-                btn.dataset.state = doorState;
-            } else if (type === 'candle') {
-                candleState = (candleState + 1) % 3;
-                btn.dataset.state = candleState;
-            } else if (type === 'holy') {
-                holyState = (holyState + 1) % 3;
-                btn.dataset.state = holyState;
-            } else if (type === 'flx') {
-                flxState = (flxState + 1) % 3;
-                btn.dataset.state = flxState;
-            } else if (type === 'breaker') {
-                breakerState = (breakerState + 1) % 3;
-                btn.dataset.state = breakerState;
-            } else if (type === 'manifest') {
-                manifestState = (manifestState + 1) % 3;
-                btn.dataset.state = manifestState;
-            } else if (type === 'hunt') {
-                huntState = (huntState + 1) % 3;
-                btn.dataset.state = huntState;
-            }
-            filterGhosts();
-        }
+const filtered = ghosts.filter(g => {
+if(noEvidenceMode) {
+if(g.ev.some(e => activeEvidence.has(e) || excludedEvidence.has(e))) return false;
+} else {
+for(let ev of activeEvidence) { if(!g.ev.includes(ev)) return false; }
+for(let ev of excludedEvidence) { if(g.ev.includes(ev)) return false; }
+}
+if(sp !== 'all' && g.speed !== sp) return false;
+if(lsp !== 'all' && g.losspeed !== lsp) return false;
+if(los !== 'all' && g.los !== los) return false;
+if(candleState === 1 && !g.tags.includes('extinguish')) return false;
+if(candleState === 2 && !g.tags.includes('candles-ignore')) return false;
+if(lightsState === 1 && !g.tags.includes('lights-on')) return false;
+if(lightsState === 2 && !g.tags.includes('lights-off')) return false;
+if(lightsState === 3 && (!g.tags.includes('lights-on') || !g.tags.includes('lights-off'))) return false;
+if(lightsState === 4 && !g.tags.includes('lights-ignore')) return false;
+if(radioState === 1 && !g.tags.includes('radio-on')) return false;
+if(radioState === 2 && !g.tags.includes('radio-off')) return false;
+if(radioState === 3 && (!g.tags.includes('radio-on') || !g.tags.includes('radio-off'))) return false;
+if(radioState === 4 && !g.tags.includes('radio-ignore')) return false;
+if(holyState === 1 && !g.tags.includes('spray-normal')) return false;
+if(holyState === 2 && !g.tags.includes('spray-more')) return false;
+if(doorState === 1 && g.tags.includes('no-doors')) return false;
+if(doorState === 2 && !g.tags.includes('no-doors')) return false;
+if(flxState === 1 && g.tags.includes('flx-ignore')) return false;
+if(flxState === 2 && !g.tags.includes('flx-ignore')) return false;
+if(breakerState === 1 && g.tags.includes('no-breaker')) return false;
+if(breakerState === 2 && !g.tags.includes('no-breaker')) return false;
+if(manifestState === 1 && g.tags.includes('shadow-only')) return false;
+if(manifestState === 2 && !g.tags.includes('shadow-only')) return false;
+return true;
+});
 
-        function resetAll() {
-            activeEvidence.clear(); excludedEvidence.clear(); eliminatedGhosts.clear(); selectedGhost = null;
-            document.querySelectorAll('.ev-btn').forEach(b => { b.classList.remove('active'); b.classList.remove('excluded'); });
-            document.querySelectorAll('.toggle-box').forEach(b => b.dataset.state = 0);
-            document.getElementById('speed-select').value = "all";
-            document.getElementById('losspeed-select').value = "all";
-            document.getElementById('los-select').value = "all";
+renderGhosts(filtered);
+}
 
-            candleState = 0; document.getElementById('btn-candle').dataset.state = 0;
-            lightsState = 0; document.getElementById('btn-lights').dataset.state = 0;
-            radioState = 0; document.getElementById('btn-radio').dataset.state = 0;
-            holyState = 0; document.getElementById('btn-holy').dataset.state = 0;
-            doorState = 0; document.getElementById('btn-doors').dataset.state = 0;
-            flxState = 0; document.getElementById('btn-flx').dataset.state = 0;
-            manifestState = 0; document.getElementById('btn-manifest').dataset.state = 0;
-
-            filterGhosts();
-            resetTimer();
-        }
-
-       // --- TIMER FUNCTIONS ---
-        function startTimer() {
-            if(isRunning) return;
-            isRunning = true;
-            document.getElementById('btnStart').style.display = 'none';
-            document.getElementById('btnStop').style.display = 'inline-block';
-            timerInterval = setInterval(() => {
-                seconds++;
-                updateTimerDisplay();
-            }, 1000);
-        }
-
-        function stopTimer() {
-            if(!isRunning) return;
-            isRunning = false;
-            clearInterval(timerInterval);
-            document.getElementById('btnStart').style.display = 'inline-block';
-            document.getElementById('btnStop').style.display = 'none';
-        }
-
-        function resetTimer() {
-            stopTimer();
-            seconds = 0;
-            updateTimerDisplay();
-        }
-
-        function updateTimerDisplay() {
-            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-            const s = (seconds % 60).toString().padStart(2, '0');
-            document.getElementById('timerDisplay').innerText = `${m}:${s}`;
-        }
-
-     
-
-        // --- FILTERING LOGIC ---
-        function filterGhosts() {
-            const speedVal = document.getElementById('speed-select').value;
-            const losspeedVal = document.getElementById('losspeed-select').value;
-            const losVal = document.getElementById('los-select').value;
-
-            const filtered = ghosts.filter(g => {
-                
-                // 1. MUST have all ACTIVE evidence
-                for (let ev of activeEvidence) {
-                    if (!g.ev.includes(ev)) return false;
-                }
-
-                // 2. MUST NOT have any EXCLUDED evidence (New Logic)
-                for (let ev of excludedEvidence) {
-                    if (g.ev.includes(ev)) return false; 
-                }
-
-                // Speed & LOS Filters (NEW)
-                if (speedVal !== "all" && g.speed !== speedVal) return false;
-                if (losspeedVal !== "all" && g.losspeed !== losspeedVal) return false;
-                if (losVal !== "all" && g.los !== losVal) return false;
-                
-                // Candle Logic (1=Off, 2=Ignores) (Guu)
-                if (candleState === 1 && !g.tags.includes('extinguish')) return false;
-                if (candleState === 2 && !g.tags.includes('candles-ignore')) return false;
-
-	        // Hunt Cooldown Logic (1=Normal, 2=Short, 3=Long) (Guu)
-                if (huntState === 1 && !g.tags.includes('short-cooldown')) return false;
-                if (huntState === 2 && !g.tags.includes('long-cooldown')) return false;
-                if (huntState === 3 && (!g.tags.includes('short-cooldown') || !g.tags.includes('long-cooldown'))) return false;
-
-                // Lights Logic (1=On, 2=Off, 3=Both) (Guu)
-                if (lightsState === 1 && !g.tags.includes('lights-on')) return false;
-                if (lightsState === 2 && !g.tags.includes('lights-off')) return false;
-                if (lightsState === 3 && (!g.tags.includes('lights-on') || !g.tags.includes('lights-off'))) return false;
-                if (lightsState === 4 && !g.tags.includes('lights-ignore')) return false;
-
-                // Radio Logic (1=On, 2=Off, 3=Both) (Guu)
-                if (radioState === 1 && !g.tags.includes('radio-on')) return false;
-                if (radioState === 2 && !g.tags.includes('radio-off')) return false;
-                if (radioState === 3 && (!g.tags.includes('radio-on') || !g.tags.includes('radio-off'))) return false;
-                if (radioState === 4 && !g.tags.includes('radio-ignore')) return false;
-
-                // Holy Spray Logic (1=Normal, 2=More) (Guu)
-                if (holyState === 1 && !g.tags.includes('spray-normal')) return false;
-                if (holyState === 2 && !g.tags.includes('spray-more')) return false;
-
-                // Doors Logic (1=Closes, 2=Never Closes)
-                if (doorState === 1 && g.tags.includes('no-doors')) return false;
-                if (doorState === 2 && !g.tags.includes('no-doors')) return false;
-
-                // FLX Logic (1=Interacts, 2=Ignores)
-                if (flxState === 1 && g.tags.includes('flx-ignore')) return false;
-                if (flxState === 2 && !g.tags.includes('flx-ignore')) return false;
-
-                // Breaker Logic (1=Can Use, 2=Cannot Use)
-                if (breakerState === 1 && g.tags.includes('no-breaker')) return false;
-                if (breakerState === 2 && !g.tags.includes('no-breaker')) return false;
-
-                // Manifest Logic (1=Full Body, 2=Shadow Only)
-                if (manifestState === 1 && g.tags.includes('shadow-only')) return false;
-                if (manifestState === 2 && !g.tags.includes('shadow-only')) return false;
-
-                return true;
-            });
-
-            renderGhosts(filtered);
-        }
-    </script>
+</script>
 </body>
 </html>
